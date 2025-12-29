@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="LocalCipher.vcxproj" Id="5a206b3a-8e73-4455-9daf-33840fd53609" />
+</Solution>
