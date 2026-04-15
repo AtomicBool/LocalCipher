@@ -1,5 +1,11 @@
 #include "RenderUtils.h"
 
+/*
+ Libs:
+ - d3d11.lib
+ - d3dcompiler.lib
+*/
+
 ID3D11Device* g_pd3dDevice = nullptr;
 ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 IDXGISwapChain* g_pSwapChain = nullptr;

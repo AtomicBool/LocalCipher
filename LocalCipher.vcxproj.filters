@@ -48,6 +48,9 @@
     <ClCompile Include="search.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="cipher.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

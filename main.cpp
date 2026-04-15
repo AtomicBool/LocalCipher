@@ -144,7 +144,7 @@ int main(int, char**)
             ImGuiViewport* viewport = ImGui::GetMainViewport();
             ImVec2 viewportSize = viewport->Size;  // DX11 window size
 
-            if (KeyPressed(VK_INSERT)) {
+            if (KeyPressed(VK_F2)) {
                 display = !display;
                 if (display) {
                     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwExStyle);
