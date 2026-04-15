@@ -1,7 +1,25 @@
 #pragma once
-#include "main.h"
+#include <string>
+#include <vector>
+#include <fstream>
+#include <algorithm>
 
-typedef struct Contact {
-	std::string contact_name = "";
+struct Contact {
+    std::string name;
+    std::string public_key;
+};
 
-} Contact;
+class ContactManager {
+public:
+    ContactManager(const std::string& filename);
+    
+    void load();
+    void save();
+    void addContact(const Contact& contact);
+    std::vector<Contact> search(const std::string& query);
+    const std::vector<Contact>& getAllContacts() const { return contacts; }
+
+private:
+    std::string filename;
+    std::vector<Contact> contacts;
+};

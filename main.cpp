@@ -3,9 +3,15 @@
 #include "search.h"
 
 // User Variables
-float sizesPercentage[2] = {0.9f, 0.7f};
+float sizesPercentage[2] = { 0.9f, 0.7f };
 char buffer[256] = "";
 bool debug = false;
+
+// Search Variables
+char add_name[128] = "";
+char add_key[512] = "";
+bool show_add_contact = false;
+ContactManager contact_manager("contacts.csv");
 
 // Private Variables & Constants
 int windowWidth, windowHeight;
@@ -27,9 +33,8 @@ extern bool                     g_SwapChainOccluded;
 extern UINT                     g_ResizeWidth, g_ResizeHeight;
 extern ID3D11RenderTargetView*  g_mainRenderTargetView;
 
-static bool KeyPressed(int vkCode, ULONGLONG interval = 150) { // win+tab大概200ms延迟
+static bool KeyPressed(int vkCode, ULONGLONG interval = 150) {
     ULONGLONG now = GetTickCount64();
-
     if (GetAsyncKeyState(vkCode) & 0x8000) {
         if (now - g_lastKeyTime[vkCode] > interval) {
             g_lastKeyTime[vkCode] = now;
@@ -57,8 +62,8 @@ int main(int, char**)
     hwnd = ::CreateWindowExW(
         dwExStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE,
         wc.lpszClassName,
-        L"LocalCipher",         // 窗口标题
-        WS_POPUP,               // 无边框窗口
+        L"LocalCipher",         // Window Title
+        WS_POPUP,               // No border
         (screenWidth - windowWidth) / 2,
         (screenHeight - windowHeight) / 2,
         windowWidth,
@@ -87,15 +92,14 @@ int main(int, char**)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark(); // or StyleColorsLight()
+    ImGui::StyleColorsDark();
 
     // Setup scaling
     ImGuiStyle& style = ImGui::GetStyle();
-    style.ScaleAllSizes(scaleFactor);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = scaleFactor;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+    style.ScaleAllSizes(scaleFactor);
+    style.FontScaleDpi = scaleFactor;
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
@@ -105,8 +109,6 @@ int main(int, char**)
     bool done = false;
     while (!done)
     {
-        // Poll and handle messages (inputs, window resize, etc.)
-        // See the WndProc() function below for our to dispatch events to the Win32 backend.
         MSG msg;
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
         {
@@ -118,7 +120,6 @@ int main(int, char**)
         if (done)
             break;
 
-        // Handle window being minimized or screen locked
         if (g_SwapChainOccluded && g_pSwapChain->Present(0, DXGI_PRESENT_TEST) == DXGI_STATUS_OCCLUDED)
         {
             ::Sleep(10);
@@ -126,69 +127,83 @@ int main(int, char**)
         }
         g_SwapChainOccluded = false;
 
-        // Handle window resize (we don't resize directly in the WM_SIZE handler)
-        if (g_ResizeWidth != 0 && g_ResizeHeight != 0)
-        {
-            CleanupRenderTarget();
-            g_pSwapChain->ResizeBuffers(0, g_ResizeWidth, g_ResizeHeight, DXGI_FORMAT_UNKNOWN, 0);
-            g_ResizeWidth = g_ResizeHeight = 0;
-            CreateRenderTarget();
-        }
-
         // Start the Dear ImGui frame
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
         {
-            ImGuiViewport* viewport = ImGui::GetMainViewport();
-            ImVec2 viewportSize = viewport->Size;  // DX11 window size
-
             if (KeyPressed(VK_F2)) {
                 display = !display;
                 if (display) {
                     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwExStyle);
+                    SetForegroundWindow(hwnd);
                     firstFrame = true;
                 }
                 else {
                     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwExStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
                 }
+                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
             }
-
-            ImGuiWindowFlags window_flags =
-                ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoCollapse |
-                ImGuiWindowFlags_NoMove;
 
             if (display)
             {
-                SetForegroundWindow(hwnd); // SetFocus | SetActiveWindow didn't work
-
+                ImVec2 viewportSize = ImGui::GetMainViewport()->Size;
                 ImVec2 nextWindowSize = ImVec2(viewportSize.x * sizesPercentage[0], viewportSize.y * sizesPercentage[1]);
                 ImGui::SetNextWindowSize(nextWindowSize);
-                ImGui::SetNextWindowPos(
-                    ImVec2(
-                        (viewportSize.x - nextWindowSize.x) / 2,
-                        (viewportSize.y - nextWindowSize.y) / 2
-                    )
-                );
+                ImGui::SetNextWindowPos(ImVec2((viewportSize.x - nextWindowSize.x) / 2, (viewportSize.y - nextWindowSize.y) / 2));
 
+                ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
                 ImGui::Begin("LocalCipherMain", nullptr, window_flags);
 
-                ImGui::DragFloat2("Sizes", sizesPercentage, 0.001f, 0.0f, 1.0f);
-
                 if (firstFrame) ImGui::SetKeyboardFocusHere(0);
-                if (ImGui::InputText("##input", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
+                ImGui::PushItemWidth(-1.0f);
+                ImGui::InputTextWithHint("##search", "Search contacts...", buffer, sizeof(buffer));
+                ImGui::PopItemWidth();
+                ImGui::Separator();
 
+                auto filteredContacts = contact_manager.search(buffer);
+                ImGui::BeginChild("ContactList", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() * 2), true);
+                for (const auto& contact : filteredContacts) {
+                    if (ImGui::Selectable(contact.name.c_str())) {
+                    }
+                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Public Key: %s", contact.public_key.c_str());
+                }
+                ImGui::EndChild();
+
+                if (ImGui::Button("Add New Contact")) {
+                    show_add_contact = true;
+                    // Note: using direct memset might require <cstring> or just zeroing chars
+                    for(int i=0; i<128; ++i) add_name[i] = 0;
+                    for(int i=0; i<512; ++i) add_key[i] = 0;
                 }
 
-                ImGui::Text("%.1f FPS @ %.0f*%.0f", io.Framerate, viewportSize.x, viewportSize.y);
-                ImGui::SameLine();
-				ImGui::Checkbox("Debug", &debug);
+                ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetFrameHeight() - ImGui::CalcTextSize("Debug").x - ImGui::GetStyle().ItemInnerSpacing.x - ImGui::GetStyle().WindowPadding.x);
+                ImGui::Checkbox("Debug", &debug);
+
+                if (show_add_contact) ImGui::OpenPopup("Add Contact");
+                if (ImGui::BeginPopupModal("Add Contact", &show_add_contact, ImGuiWindowFlags_AlwaysAutoResize)) {
+                    ImGui::InputText("Name", add_name, 128);
+                    ImGui::InputText("Public Key", add_key, 512);
+                    if (ImGui::Button("Save", ImVec2(120, 0))) {
+                        if (add_name[0] != 0 && add_key[0] != 0) {
+                            contact_manager.addContact({ add_name, add_key });
+                            show_add_contact = false;
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Cancel", ImVec2(120, 0))) { show_add_contact = false; ImGui::CloseCurrentPopup(); }
+                    ImGui::EndPopup();
+                }
+
+                if (debug) {
+                    ImGui::Separator();
+                    ImGui::DragFloat2("Window Sizes", sizesPercentage, 0.001f, 0.0f, 1.0f);
+                    ImGui::Text("%.1f FPS", io.Framerate);
+                }
 
                 ImGui::End();
-
                 firstFrame = false;
             }
         }
@@ -200,18 +215,13 @@ int main(int, char**)
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (debug) ? fDebug : fClear);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-        // Present
-        HRESULT hr = g_pSwapChain->Present(1, 0);   // Present with vsync
-        //HRESULT hr = g_pSwapChain->Present(0, 0); // Present without vsync
-        g_SwapChainOccluded = (hr == DXGI_STATUS_OCCLUDED);
+        g_pSwapChain->Present(1, 0);
     }
 
     // Cleanup
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-
     CleanupDeviceD3D();
     ::DestroyWindow(hwnd);
     ::UnregisterClassW(wc.lpszClassName, wc.hInstance);

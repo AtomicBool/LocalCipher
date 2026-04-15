@@ -1,93 +1,89 @@
-#include "main.h"
+#include "cipher.h"
+#include <wincrypt.h>
 
-#include <bcrypt.h>
 #pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "crypt32.lib")
 
-class RSACrypto
-{
-private:
-    BCRYPT_ALG_HANDLE hAlg;
-    BCRYPT_KEY_HANDLE hKey;
+RSAProcessor::RSAProcessor() {
+    BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_RSA_ALGORITHM, NULL, 0);
+}
 
-public:
-    RSACrypto() : hAlg(NULL), hKey(NULL)
-    {
-        NTSTATUS status = BCryptOpenAlgorithmProvider(&hAlg, BCRYPT_ECDH_P256_ALGORITHM, NULL, 0);
-		if (status != STATUS_SUCCESS)
-        {
-            hAlg = NULL;
-			printf("[-] Failed to open algorithm provider\n");
-        }
-    }
+RSAProcessor::~RSAProcessor() {
+    if (hKey) BCryptDestroyKey(hKey);
+    if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
+}
 
-    ~RSACrypto()
-    {
-        if (hKey) BCryptDestroyKey(hKey);
-        if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
-    }
+std::string RSAProcessor::Base64Encode(const std::vector<BYTE>& data) {
+    if (data.empty()) return "";
+    DWORD len = 0;
+    CryptBinaryToStringA(data.data(), (DWORD)data.size(), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, NULL, &len);
+    std::vector<char> buffer(len);
+    CryptBinaryToStringA(data.data(), (DWORD)data.size(), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, buffer.data(), &len);
+    return std::string(buffer.data());
+}
 
-    bool GenerateKeyPair()
-    {
-        return BCryptGenerateKeyPair(hAlg, &hKey, 256, 0) == STATUS_SUCCESS;
-    }
+std::vector<BYTE> RSAProcessor::Base64Decode(const std::string& base64) {
+    if (base64.empty()) return {};
+    DWORD len = 0;
+    CryptStringToBinaryA(base64.c_str(), 0, CRYPT_STRING_BASE64, NULL, &len, NULL, NULL);
+    std::vector<BYTE> buffer(len);
+    CryptStringToBinaryA(base64.c_str(), 0, CRYPT_STRING_BASE64, buffer.data(), &len, NULL, NULL);
+    return buffer;
+}
 
-    bool Encrypt(const std::string& plainText, BYTE** encryptedData, DWORD* encryptedLen) const
-    {
-        if (!hKey) return false;
+bool RSAProcessor::GenerateKeyPair(std::string& pubKeyHex, std::string& privKeyHex) {
+    if (!hAlg) return false;
+    if (BCryptGenerateKeyPair(hAlg, &hKey, 2048, 0) != 0) return false;
+    if (BCryptFinalizeKeyPair(hKey, 0) != 0) return false;
+    pubKeyHex = ExportKey(BCRYPT_RSAPUBLIC_BLOB);
+    privKeyHex = ExportKey(BCRYPT_RSAFULLPRIVATE_BLOB);
+    return true;
+}
 
-        // 将字符串转换为字节
-        DWORD dataLen = (DWORD)plainText.length();
-        const BYTE* data = (const BYTE*)plainText.c_str();
+std::string RSAProcessor::ExportKey(LPCWSTR blobType) {
+    if (!hKey) return "";
+    DWORD size = 0;
+    if (BCryptExportKey(hKey, NULL, blobType, NULL, 0, &size, 0) != 0) return "";
+    std::vector<BYTE> buffer(size);
+    if (BCryptExportKey(hKey, NULL, blobType, buffer.data(), size, &size, 0) != 0) return "";
+    return Base64Encode(buffer);
+}
 
-        // 最多多出255bits
-        *encryptedLen = dataLen + 256;
-        *encryptedData = new BYTE[*encryptedLen];
+bool RSAProcessor::ImportKey(const std::string& base64, LPCWSTR blobType) {
+    if (!hAlg) return false;
+    if (hKey) { BCryptDestroyKey(hKey); hKey = NULL; }
+    std::vector<BYTE> buffer = Base64Decode(base64);
+    if (buffer.empty()) return false;
+    return BCryptImportKeyPair(hAlg, NULL, blobType, &hKey, buffer.data(), (DWORD)buffer.size(), 0) == 0;
+}
 
-        DWORD bytesWritten = 0;
-        
-        NTSTATUS status = BCryptEncrypt(
-            hKey,
-            (PUCHAR)data,
-            dataLen,
-            NULL, NULL, 0,
-            *encryptedData,
-            *encryptedLen,
-            &bytesWritten,
-            0
-        );
+std::string RSAProcessor::Encrypt(const std::string& plainText) {
+    if (!hKey) return "";
+    BCRYPT_PKCS1_PADDING_INFO padInfo = { NULL }; // Standard PKCS1 padding
+    DWORD size = 0;
+    NTSTATUS status = BCryptEncrypt(hKey, (PUCHAR)plainText.c_str(), (DWORD)plainText.length(), &padInfo, NULL, 0, NULL, 0, &size, BCRYPT_PAD_PKCS1);
+    if (status != 0) return "";
+    
+    std::vector<BYTE> buffer(size);
+    status = BCryptEncrypt(hKey, (PUCHAR)plainText.c_str(), (DWORD)plainText.length(), &padInfo, NULL, 0, buffer.data(), size, &size, BCRYPT_PAD_PKCS1);
+    if (status != 0) return "";
+    
+    return Base64Encode(buffer);
+}
 
-        return status == STATUS_SUCCESS;
-    }
-
-    bool Decrypt(BYTE* encryptedData, DWORD encryptedLen, std::string& plainText) const
-    {
-        if (!hKey) return false;
-
-        // 由于ECC的限制，这里需要更复杂的实现
-        // 实际应用中通常使用ECC进行密钥交换，然后用对称加密
-        BYTE* outputBuffer = new BYTE[encryptedLen];
-        DWORD bytesWritten = 0;
-
-        NTSTATUS status = BCryptDecrypt(
-            hKey,
-            encryptedData,
-            encryptedLen,
-            NULL, NULL, 0,
-            outputBuffer,
-            encryptedLen,
-            &bytesWritten,
-            0
-        );
-
-        if (status == STATUS_SUCCESS)
-        {
-            plainText.assign((char*)outputBuffer, bytesWritten);
-            delete[] outputBuffer;
-            return true;
-        }
-
-        delete[] outputBuffer;
-        return false;
-    }
-
-};
+std::string RSAProcessor::Decrypt(const std::string& cipherBase64) {
+    if (!hKey) return "";
+    std::vector<BYTE> cipher = Base64Decode(cipherBase64);
+    if (cipher.empty()) return "";
+    
+    BCRYPT_PKCS1_PADDING_INFO padInfo = { NULL };
+    DWORD size = 0;
+    NTSTATUS status = BCryptDecrypt(hKey, cipher.data(), (DWORD)cipher.size(), &padInfo, NULL, 0, NULL, 0, &size, BCRYPT_PAD_PKCS1);
+    if (status != 0) return "";
+    
+    std::vector<BYTE> buffer(size);
+    status = BCryptDecrypt(hKey, cipher.data(), (DWORD)cipher.size(), &padInfo, NULL, 0, buffer.data(), size, &size, BCRYPT_PAD_PKCS1);
+    if (status != 0) return "";
+    
+    return std::string((char*)buffer.data(), size);
+}
