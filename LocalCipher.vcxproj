@@ -153,8 +153,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderUtils.cpp" />
     <ClCompile Include="search.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cipher.h" />
     <ClInclude Include="imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -166,7 +168,9 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="RenderUtils.h" />
     <ClInclude Include="search.h" />
-  </ItemGroup>
+    <ClInclude Include="UI.h" />
+    </ItemGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

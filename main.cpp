@@ -1,26 +1,15 @@
 #include "main.h"
 #include "RenderUtils.h"
 #include "search.h"
+#include "UI.h"
 
-// User Variables
-float sizesPercentage[2] = { 0.9f, 0.7f };
-char buffer[256] = "";
-bool debug = false;
-
-// Search Variables
-char add_name[128] = "";
-char add_key[512] = "";
-bool show_add_contact = false;
+// UI State
+UIState uiState;
 ContactManager contact_manager("contacts.csv");
-
-// Selection State
-Contact selected_contact = { "", "" };
 
 // Private Variables & Constants
 int windowWidth, windowHeight;
-bool display = false;
 ULONGLONG g_lastKeyTime[256] = { 0 };
-bool firstFrame = false;
 
 float scaleFactor;
 int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -137,11 +126,11 @@ int main(int, char**)
 
         {
             if (KeyPressed(VK_F2)) {
-                display = !display;
-                if (display) {
+                uiState.display = !uiState.display;
+                if (uiState.display) {
                     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwExStyle);
                     SetForegroundWindow(hwnd);
-                    firstFrame = true;
+                    uiState.firstFrame = true;
                 }
                 else {
                     SetWindowLongPtr(hwnd, GWL_EXSTYLE, dwExStyle | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
@@ -149,68 +138,7 @@ int main(int, char**)
                 SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
             }
 
-            if (display)
-            {
-                ImVec2 viewportSize = ImGui::GetMainViewport()->Size;
-                ImVec2 nextWindowSize = ImVec2(viewportSize.x * sizesPercentage[0], viewportSize.y * sizesPercentage[1]);
-                ImGui::SetNextWindowSize(nextWindowSize);
-                ImGui::SetNextWindowPos(ImVec2((viewportSize.x - nextWindowSize.x) / 2, (viewportSize.y - nextWindowSize.y) / 2));
-
-                ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
-                ImGui::Begin("LocalCipherMain", nullptr, window_flags);
-
-                if (firstFrame) ImGui::SetKeyboardFocusHere(0);
-                ImGui::PushItemWidth(-1.0f);
-                ImGui::InputTextWithHint("##search", "Search contacts...", buffer, sizeof(buffer));
-                ImGui::PopItemWidth();
-                ImGui::Separator();
-
-                auto filteredContacts = contact_manager.search(buffer);
-                ImGui::BeginChild("ContactList", ImVec2(0, -ImGui::GetFrameHeightWithSpacing() * 2), true);
-                for (const auto& contact : filteredContacts) {
-                    bool is_selected = (selected_contact.name == contact.name);
-                    if (ImGui::Selectable(contact.name.c_str(), is_selected)) {
-                        selected_contact = contact;
-                    }
-                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Public Key: %s", contact.public_key.c_str());
-                }
-                ImGui::EndChild();
-
-                if (ImGui::Button("Add New Contact")) {
-                    show_add_contact = true;
-                    // Note: using direct memset might require <cstring> or just zeroing chars
-                    for(int i=0; i<128; ++i) add_name[i] = 0;
-                    for(int i=0; i<512; ++i) add_key[i] = 0;
-                }
-
-                ImGui::SameLine(ImGui::GetWindowWidth() - ImGui::GetFrameHeight() - ImGui::CalcTextSize("Debug").x - ImGui::GetStyle().ItemInnerSpacing.x - ImGui::GetStyle().WindowPadding.x);
-                ImGui::Checkbox("Debug", &debug);
-
-                if (show_add_contact) ImGui::OpenPopup("Add Contact");
-                if (ImGui::BeginPopupModal("Add Contact", &show_add_contact, ImGuiWindowFlags_AlwaysAutoResize)) {
-                    ImGui::InputText("Name", add_name, 128);
-                    ImGui::InputText("Public Key", add_key, 512);
-                    if (ImGui::Button("Save", ImVec2(120, 0))) {
-                        if (add_name[0] != 0 && add_key[0] != 0) {
-                            contact_manager.addContact({ add_name, add_key });
-                            show_add_contact = false;
-                            ImGui::CloseCurrentPopup();
-                        }
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Cancel", ImVec2(120, 0))) { show_add_contact = false; ImGui::CloseCurrentPopup(); }
-                    ImGui::EndPopup();
-                }
-
-                if (debug) {
-                    ImGui::Separator();
-                    ImGui::DragFloat2("Window Sizes", sizesPercentage, 0.001f, 0.0f, 1.0f);
-                    ImGui::Text("%.1f FPS", io.Framerate);
-                }
-
-                ImGui::End();
-                firstFrame = false;
-            }
+            UI::Render(uiState, contact_manager);
         }
 
         // Rendering
@@ -218,7 +146,7 @@ int main(int, char**)
         const float fClear[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
         const float fDebug[4] = { 0.0f, 0.3f, 0.3f, 0.3f };
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
-        g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (debug) ? fDebug : fClear);
+        g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (uiState.debug) ? fDebug : fClear);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         g_pSwapChain->Present(1, 0);
     }
