@@ -1,5 +1,4 @@
 #include "utils/Contact.h"
-#include <sstream>
 
 ContactManager::ContactManager(const std::string& filename) : filename(filename) {
     load();

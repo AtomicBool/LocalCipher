@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 #include "utils/Contact.h"
 #include "imgui.h"
 

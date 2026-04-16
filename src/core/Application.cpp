@@ -1,5 +1,4 @@
 ﻿#include "core/Application.h"
-#include <tchar.h>
 
 Application::Application()
     : m_contactManager("contacts.csv")

@@ -1,7 +1,5 @@
 #include "ui/UI.h"
 
-#include <cstring>
-
 namespace UI {
     void Render(UIState& state, ContactManager& contactManager) {
         if (!state.display) return;
