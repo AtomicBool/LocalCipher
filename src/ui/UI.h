@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/contact.h"
+#include "utils/Contact.h"
 #include "imgui.h"
 
 struct UIState {

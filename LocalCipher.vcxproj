@@ -153,8 +153,8 @@
     <ClCompile Include="src\core\main.cpp" />
     <ClCompile Include="src\ui\RenderUtils.cpp" />
     <ClCompile Include="src\ui\UI.cpp" />
-    <ClCompile Include="src\utils\contact.cpp" />
-    <ClCompile Include="src\utils\Input.cpp" />
+    <ClCompile Include="src\utils\Contact.cpp" />
+    <ClCompile Include="src\utils\Keyboard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\imgui\backends\imgui_impl_dx11.h" />
@@ -169,8 +169,8 @@
     <ClInclude Include="src\core\main.h" />
     <ClInclude Include="src\ui\RenderUtils.h" />
     <ClInclude Include="src\ui\UI.h" />
-    <ClInclude Include="src\utils\contact.h" />
-    <ClInclude Include="src\utils\Input.h" />
+    <ClInclude Include="src\utils\Contact.h" />
+    <ClInclude Include="src\utils\Keyboard.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
