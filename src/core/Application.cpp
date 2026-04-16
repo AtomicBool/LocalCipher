@@ -60,7 +60,20 @@ void Application::Run()
 {
     while (!m_done)
     {
-        if (!HandleEvents())
+        MSG msg;
+
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+
+            if (msg.message == WM_QUIT)
+            {
+                m_done = true;
+            }
+        }
+
+        if (m_done)
             break;
 
         if (g_SwapChainOccluded &&
@@ -78,33 +91,13 @@ void Application::Run()
 }
 
 // =====================================================
-// EVENTS
-// =====================================================
-bool Application::HandleEvents()
-{
-    MSG msg;
-
-    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-
-        if (msg.message == WM_QUIT)
-        {
-            m_done = true;
-            return false;
-        }
-    }
-
-    return true;
-}
-
-// =====================================================
 // UPDATE (logic layer)
 // =====================================================
 void Application::Update()
 {
+    // =====================================================
     // input handling
+    // =====================================================
     if (m_keyboard.IsKeyPressed(VK_F2))
     {
         m_uiState.display = !m_uiState.display;
@@ -112,22 +105,50 @@ void Application::Update()
     }
 
     // =====================================================
-    // handle UI events
+    // handle UI events (NEW MODEL)
     // =====================================================
-    if (m_uiState.pendingAdd)
+    ProcessUIEvents();
+}
+
+// =====================================================
+// EVENT PROCESSING (replaces pendingAdd system)
+// =====================================================
+void Application::ProcessUIEvents()
+{
+    for (const auto& e : m_uiState.events)
     {
-        if (m_uiState.addName[0] != '\0' &&
-            m_uiState.addKey[0] != '\0')
+        switch (e.type)
         {
-            m_contactManager.addContact({
-                m_uiState.addName,
-                m_uiState.addKey
-                });
+        case UIEventType::AddContact:
+        {
+            // payload: "name|key"
+            size_t sep = e.payload.find('|');
+
+            if (sep != std::string::npos)
+            {
+                std::string name = e.payload.substr(0, sep);
+                std::string key = e.payload.substr(sep + 1);
+
+                if (!name.empty() && !key.empty())
+                {
+                    m_contactManager.addContact({ name, key });
+                }
+            }
+            break;
         }
 
-        m_uiState.pendingAdd = false;
-        m_uiState.showAddContact = false;
+        case UIEventType::SelectContact:
+        {
+            // currently UI-only, no backend action needed
+            break;
+        }
+
+        default:
+            break;
+        }
     }
+
+    m_uiState.ClearEvents();
 }
 
 // =====================================================

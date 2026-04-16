@@ -5,10 +5,11 @@
 
 #include "ui/RenderUtils.h"
 #include "ui/UI.h"
-#include "utils/contact.h"
+#include "utils/Contact.h"
 #include "utils/Keyboard.h"
 
-class Application {
+class Application
+{
 public:
     Application();
     ~Application();
@@ -21,7 +22,9 @@ private:
     void Update();
     void Render();
     void UpdateWindowState();
-    bool HandleEvents();
+
+    // now event-driven (replaces pending flag logic)
+    void ProcessUIEvents();
 
 private:
     HWND m_hwnd = nullptr;

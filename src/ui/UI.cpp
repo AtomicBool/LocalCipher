@@ -1,10 +1,12 @@
 #include "ui/UI.h"
+#include <cstring>
 
 namespace UI {
 
     void Render(UIState& state, const ContactViewModel& vm)
     {
-        if (!state.display) return;
+        if (!state.display)
+            return;
 
         ImVec2 viewportSize = ImGui::GetMainViewport()->Size;
 
@@ -39,7 +41,7 @@ namespace UI {
         }
 
         // =====================================================
-        // Search
+        // Search (pure UI input)
         // =====================================================
         ImGui::PushItemWidth(-1.0f);
         ImGui::InputTextWithHint(
@@ -53,7 +55,7 @@ namespace UI {
         ImGui::Separator();
 
         // =====================================================
-        // Contact list
+        // Contact list (read-only view)
         // =====================================================
         ImGui::BeginChild(
             "ContactList",
@@ -61,25 +63,35 @@ namespace UI {
             true
         );
 
-        for (const auto& contact : vm.contacts)
+        for (int i = 0; i < (int)vm.contacts.size(); i++)
         {
-            bool selected = (state.selectedContact.name == contact.name);
+            const auto& contact = vm.contacts[i];
+
+            bool selected = (state.selectedContactIndex == i);
 
             if (ImGui::Selectable(contact.name.c_str(), selected))
             {
-                state.selectedContact = contact;
+                state.selectedContactIndex = i;
+
+                state.PushEvent(
+                    UIEventType::SelectContact,
+                    contact.name
+                );
             }
 
             if (ImGui::IsItemHovered())
             {
-                ImGui::SetTooltip("Public Key: %s", contact.public_key.c_str());
+                ImGui::SetTooltip(
+                    "Public Key: %s",
+                    contact.public_key.c_str()
+                );
             }
         }
 
         ImGui::EndChild();
 
         // =====================================================
-        // Add contact (UI intent only)
+        // Add contact button (UI intent only)
         // =====================================================
         if (ImGui::Button("Add New Contact"))
         {
@@ -100,12 +112,14 @@ namespace UI {
         ImGui::Checkbox("Debug", &state.debug);
 
         // =====================================================
-        // Popup
+        // Popup (still UI-only, but emits event on confirm)
         // =====================================================
         if (state.showAddContact)
             ImGui::OpenPopup("Add Contact");
 
-        if (ImGui::BeginPopupModal("Add Contact", &state.showAddContact,
+        if (ImGui::BeginPopupModal(
+            "Add Contact",
+            &state.showAddContact,
             ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::InputText("Name", state.addName, 128);
@@ -113,7 +127,14 @@ namespace UI {
 
             if (ImGui::Button("Save", ImVec2(120, 0)))
             {
-                state.pendingAdd = true;
+                // emit event instead of flag
+                std::string payload =
+                    std::string(state.addName) + "|" + std::string(state.addKey);
+
+                state.PushEvent(UIEventType::AddContact, payload);
+
+                state.showAddContact = false;
+                ImGui::CloseCurrentPopup();
             }
 
             ImGui::SameLine();
@@ -128,12 +149,19 @@ namespace UI {
         }
 
         // =====================================================
-        // Debug
+        // Debug panel
         // =====================================================
         if (state.debug)
         {
             ImGui::Separator();
-            ImGui::DragFloat2("Window Sizes", state.sizesPercentage, 0.001f, 0.0f, 1.0f);
+            ImGui::DragFloat2(
+                "Window Sizes",
+                state.sizesPercentage,
+                0.001f,
+                0.0f,
+                1.0f
+            );
+
             ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
         }
 
