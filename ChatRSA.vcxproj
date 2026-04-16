@@ -152,6 +152,7 @@
     <ClCompile Include="lib\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\main.cpp" />
+    <ClCompile Include="src\crypto\RSA.cpp" />
     <ClCompile Include="src\ui\RenderUtils.cpp" />
     <ClCompile Include="src\ui\UI.cpp" />
     <ClCompile Include="src\utils\Contact.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="lib\imgui\imstb_textedit.h" />
     <ClInclude Include="lib\imgui\imstb_truetype.h" />
     <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\crypto\RSA.h" />
     <ClInclude Include="src\ui\RenderUtils.h" />
     <ClInclude Include="src\ui\UI.h" />
     <ClInclude Include="src\utils\Contact.h" />

@@ -23,6 +23,9 @@
     <Filter Include="Utils\os">
       <UniqueIdentifier>{e3e1b7c8-defb-4314-beda-4ca48abd31ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto">
+      <UniqueIdentifier>{3b4a80c0-643f-4f30-81d9-1e212720985e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <!-- Core 模块 -->
@@ -61,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="lib\imgui\imgui_widgets.cpp">
       <Filter>Vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\RSA.cpp">
+      <Filter>crypto</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +117,9 @@
     </ClInclude>
     <ClInclude Include="src\utils\os\KeyboardState.h">
       <Filter>Utils\os</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\RSA.h">
+      <Filter>crypto</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

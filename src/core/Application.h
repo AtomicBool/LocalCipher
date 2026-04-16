@@ -3,6 +3,7 @@
 #include <tchar.h>
 #include <windows.h>
 
+#include "crypto/RSA.h"
 #include "ui/RenderUtils.h"
 #include "ui/UI.h"
 #include "utils/Contact.h"
