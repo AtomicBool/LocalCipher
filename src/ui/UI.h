@@ -28,7 +28,7 @@ struct UIEvent
 
 //
 // =========================
-// VIEW MODEL (App → UI)
+// VIEW MODEL (App -> UI)
 // =========================
 //
 
