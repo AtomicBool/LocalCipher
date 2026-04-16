@@ -6,7 +6,7 @@
 #include "ui/RenderUtils.h"
 #include "ui/UI.h"
 #include "utils/Contact.h"
-#include "utils/Keyboard.h"
+#include "utils/InputEvents.h"
 
 class Application
 {
@@ -32,7 +32,7 @@ private:
     UIState m_uiState;
     ContactManager m_contactManager;
 
-    Keyboard& m_keyboard = Keyboard::Get();
+    InputEvents m_input;
 
     DWORD m_dwExStyle = WS_EX_TOPMOST | WS_EX_LAYERED;
     bool m_done = false;

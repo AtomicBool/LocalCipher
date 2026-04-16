@@ -155,7 +155,6 @@
     <ClCompile Include="src\ui\RenderUtils.cpp" />
     <ClCompile Include="src\ui\UI.cpp" />
     <ClCompile Include="src\utils\Contact.cpp" />
-    <ClCompile Include="src\utils\Keyboard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lib\imgui\backends\imgui_impl_dx11.h" />
@@ -170,7 +169,9 @@
     <ClInclude Include="src\ui\RenderUtils.h" />
     <ClInclude Include="src\ui\UI.h" />
     <ClInclude Include="src\utils\Contact.h" />
-    <ClInclude Include="src\utils\Keyboard.h" />
+    <ClInclude Include="src\utils\InputEvents.h" />
+    <ClInclude Include="src\utils\KeyboardController.h" />
+    <ClInclude Include="src\utils\KeyboardState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,7 +6,6 @@
 
 Application::Application()
     : m_contactManager("contacts.csv")
-    , m_keyboard(Keyboard::Get())
 {
 }
 
@@ -98,7 +97,7 @@ void Application::Update()
     // =====================================================
     // input handling
     // =====================================================
-    if (m_keyboard.IsKeyPressed(VK_F2))
+    if (m_input.IsPressed(VK_F2))
     {
         m_uiState.display = !m_uiState.display;
         UpdateWindowState();
@@ -111,7 +110,7 @@ void Application::Update()
 }
 
 // =====================================================
-// EVENT PROCESSING (replaces pendingAdd system)
+// EVENT PROCESSING
 // =====================================================
 void Application::ProcessUIEvents()
 {
@@ -119,27 +118,29 @@ void Application::ProcessUIEvents()
     {
         switch (e.type)
         {
-        case UIEventType::AddContact:
+        case UIEvent::Type::AddContact:
         {
-            // payload: "name|key"
-            size_t sep = e.payload.find('|');
+            const auto& p = e.addContact;
 
-            if (sep != std::string::npos)
+            if (!p.name.empty() && !p.publicKey.empty())
             {
-                std::string name = e.payload.substr(0, sep);
-                std::string key = e.payload.substr(sep + 1);
-
-                if (!name.empty() && !key.empty())
-                {
-                    m_contactManager.addContact({ name, key });
-                }
+                m_contactManager.addContact({
+                    p.name,
+                    p.publicKey
+                });
             }
+            printf(
+                "[added] %s\n", e.addContact.name.c_str()
+            );
             break;
         }
 
-        case UIEventType::SelectContact:
+        case UIEvent::Type::SelectContact:
         {
-            // currently UI-only, no backend action needed
+            printf(
+                "[selected] %d\n", e.selectContact.index
+            );
+            // UI-only
             break;
         }
 

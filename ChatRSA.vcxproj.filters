@@ -38,9 +38,6 @@
     <ClCompile Include="src\ui\UI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\Keyboard.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\Contact.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -73,9 +70,6 @@
     <ClInclude Include="src\ui\UI.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\Keyboard.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\Contact.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -102,6 +96,15 @@
     </ClInclude>
     <ClInclude Include="lib\imgui\imstb_truetype.h">
       <Filter>Vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\KeyboardState.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\InputEvents.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\KeyboardController.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

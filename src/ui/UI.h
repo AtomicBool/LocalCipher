@@ -11,19 +11,29 @@
 // =========================
 //
 
-enum class UIEventType
+struct AddContactPayload
 {
-    None,
-    AddContact,
-    DeleteContact,
-    SelectContact
+    std::string name;
+    std::string publicKey;
+};
+
+struct SelectContactPayload
+{
+    int index = -1;
 };
 
 struct UIEvent
 {
-    UIEventType type = UIEventType::None;
+    enum class Type
+    {
+        None,
+        AddContact,
+        SelectContact
+    } type = Type::None;
 
-    std::string payload;
+    // 只在对应 type 下有效
+    AddContactPayload addContact{};
+    SelectContactPayload selectContact{};
 };
 
 //
@@ -42,40 +52,53 @@ struct ContactViewModel
 // UI STATE (pure UI state)
 // =========================
 //
-
 struct UIState
 {
     // layout
     float sizesPercentage[2] = { 0.45f, 0.6f };
 
-    // global ui flags
+    // flags
     bool debug = false;
     bool display = false;
     bool firstFrame = false;
 
-    // search
+    // input
     char searchBuffer[256] = { 0 };
 
-    // add contact dialog input cache
+    // add contact
     bool showAddContact = false;
     char addName[128] = { 0 };
     char addKey[512] = { 0 };
 
-    // selection (UI-only index, NOT domain object)
+    // selection
     int selectedContactIndex = -1;
 
-    // UI OUTPUT (events to Application layer)
+    // events
     std::vector<UIEvent> events;
 
-    // helper: clear events each frame
+    // -------------------------
+    // event helpers
+    // -------------------------
+
+    void PushAddContact(const std::string& name, const std::string& key)
+    {
+        UIEvent e;
+        e.type = UIEvent::Type::AddContact;
+        e.addContact = { name, key };
+        events.push_back(e);
+    }
+
+    void PushSelectContact(int index)
+    {
+        UIEvent e;
+        e.type = UIEvent::Type::SelectContact;
+        e.selectContact = { index };
+        events.push_back(e);
+    }
+
     void ClearEvents()
     {
         events.clear();
-    }
-
-    void PushEvent(UIEventType type, const std::string& payload = "")
-    {
-        events.push_back({ type, payload });
     }
 };
 

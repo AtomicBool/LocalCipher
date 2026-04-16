@@ -73,10 +73,7 @@ namespace UI {
             {
                 state.selectedContactIndex = i;
 
-                state.PushEvent(
-                    UIEventType::SelectContact,
-                    contact.name
-                );
+                state.PushSelectContact(i);
             }
 
             if (ImGui::IsItemHovered())
@@ -127,11 +124,7 @@ namespace UI {
 
             if (ImGui::Button("Save", ImVec2(120, 0)))
             {
-                // emit event instead of flag
-                std::string payload =
-                    std::string(state.addName) + "|" + std::string(state.addKey);
-
-                state.PushEvent(UIEventType::AddContact, payload);
+                state.PushAddContact(state.addName, state.addKey);
 
                 state.showAddContact = false;
                 ImGui::CloseCurrentPopup();
