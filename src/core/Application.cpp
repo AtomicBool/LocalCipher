@@ -112,7 +112,7 @@ void Application::Update()
     }
 
     // =====================================================
-    // handle UI events (NEW)
+    // handle UI events
     // =====================================================
     if (m_uiState.pendingAdd)
     {
@@ -167,7 +167,7 @@ void Application::Render()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // build view model (NEW separation point)
+    // build view model
     ContactViewModel vm;
     vm.contacts = m_contactManager.search(m_uiState.searchBuffer);
 

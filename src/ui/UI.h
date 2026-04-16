@@ -17,6 +17,8 @@ struct UIState {
     char addKey[512] = "";
 
     Contact selectedContact = { "", "" };
+
+    // events
     bool pendingAdd = false;
 };
 

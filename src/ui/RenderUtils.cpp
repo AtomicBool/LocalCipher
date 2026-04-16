@@ -14,7 +14,7 @@
 */
 
 // =====================================================
-// Global Graphics State (ONLY in cpp)
+// Global Graphics State
 // =====================================================
 ID3D11Device* g_pd3dDevice = nullptr;
 ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;

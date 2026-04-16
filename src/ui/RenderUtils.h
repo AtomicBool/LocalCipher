@@ -30,7 +30,7 @@ void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // =====================================================
-// GLOBAL RENDER STATE (关键补丁)
+// GLOBAL RENDER STATE
 // =====================================================
 extern ID3D11Device* g_pd3dDevice;
 extern ID3D11DeviceContext* g_pd3dDeviceContext;

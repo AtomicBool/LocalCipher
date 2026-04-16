@@ -53,7 +53,7 @@ namespace UI {
         ImGui::Separator();
 
         // =====================================================
-        // Contact list (VIEW ONLY)
+        // Contact list
         // =====================================================
         ImGui::BeginChild(
             "ContactList",
@@ -100,7 +100,7 @@ namespace UI {
         ImGui::Checkbox("Debug", &state.debug);
 
         // =====================================================
-        // Popup (still UI stateful, OK)
+        // Popup
         // =====================================================
         if (state.showAddContact)
             ImGui::OpenPopup("Add Contact");
@@ -113,8 +113,6 @@ namespace UI {
 
             if (ImGui::Button("Save", ImVec2(120, 0)))
             {
-                // ❌ 不再直接写 contactManager
-                // ✔ 这里只表达“用户想添加”
                 state.pendingAdd = true;
             }
 
