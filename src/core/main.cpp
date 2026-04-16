@@ -26,9 +26,6 @@ void rsa_demo() {
         }
     }
 
-    // =========================
-    // 没有则生成新的
-    // =========================
     if (!loaded)
     {
         std::cout << "Generating new keypair...\n";
