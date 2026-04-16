@@ -192,7 +192,7 @@ namespace UI {
             ImGuiWindowFlags_NoNav
         );
 
-        ImGui::PushTextWrapPos(500.0f);
+        ImGui::PushTextWrapPos(1300.0f);
         ImGui::TextUnformatted(state.text.c_str());
         ImGui::PopTextWrapPos();
 
