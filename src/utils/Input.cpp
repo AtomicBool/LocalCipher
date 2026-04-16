@@ -1,4 +1,4 @@
-#include "Input.h"
+#include "utils/Input.h"
 
 bool Input::IsKeyPressed(int vkCode, ULONGLONG interval) {
     ULONGLONG now = GetTickCount64();

@@ -1,4 +1,4 @@
-#include "contact.h"
+#include "utils/contact.h"
 #include <sstream>
 
 ContactManager::ContactManager(const std::string& filename) : filename(filename) {

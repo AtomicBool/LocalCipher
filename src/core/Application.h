@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 
-#include "RenderUtils.h"
-#include "contact.h"
-#include "UI.h"
-#include "Input.h"
 #include <vector>
+
+#include "ui/RenderUtils.h"
+#include "ui/UI.h"
+#include "utils/contact.h"
+#include "utils/Input.h"
 
 class Application {
 public:

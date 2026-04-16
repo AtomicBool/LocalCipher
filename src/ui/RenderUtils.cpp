@@ -1,4 +1,4 @@
-#include "RenderUtils.h"
+#include "ui/RenderUtils.h"
 
 /*
  Libs:
@@ -97,10 +97,40 @@ void CleanupDeviceD3D()
 
 void CreateRenderTarget()
 {
-    ID3D11Texture2D* pBackBuffer;
-    g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
-    g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_mainRenderTargetView);
+    // Ensure swap chain and device are valid
+    if (!g_pSwapChain || !g_pd3dDevice)
+        return;
+
+    ID3D11Texture2D* pBackBuffer = nullptr;
+    HRESULT hr = g_pSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
+    if (FAILED(hr) || pBackBuffer == nullptr)
+    {
+        // Make sure render target view is null on failure
+        if (pBackBuffer)
+        {
+            pBackBuffer->Release();
+            pBackBuffer = nullptr;
+        }
+        if (g_mainRenderTargetView)
+        {
+            g_mainRenderTargetView->Release();
+            g_mainRenderTargetView = nullptr;
+        }
+        return;
+    }
+
+    hr = g_pd3dDevice->CreateRenderTargetView(pBackBuffer, nullptr, &g_mainRenderTargetView);
+    // Release the back buffer reference whether CreateRenderTargetView succeeded or failed
     pBackBuffer->Release();
+
+    if (FAILED(hr))
+    {
+        if (g_mainRenderTargetView)
+        {
+            g_mainRenderTargetView->Release();
+            g_mainRenderTargetView = nullptr;
+        }
+    }
 }
 
 void CleanupRenderTarget()

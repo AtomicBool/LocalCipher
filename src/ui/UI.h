@@ -1,6 +1,7 @@
 #pragma once
-#include "imgui/imgui.h"
-#include "search.h"
+
+#include "utils/contact.h"
+#include "imgui.h"
 
 struct UIState {
     float sizesPercentage[2] = { 0.9f, 0.7f };
