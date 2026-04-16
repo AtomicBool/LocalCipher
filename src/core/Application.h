@@ -9,11 +9,16 @@
 #include "ui/UI.h"
 
 #include "utils/Contact.h"
+
 #include "utils/keyboard/InputEvents.h"
+#include "utils/keyboard/KeyboardController.h"
+
+#include "utils/os/mouse.h"
 
 #include "crypto/RSA.h"
 #include "utils/os/file.h"
 #include "utils/os/conversion.h"
+#include "utils/os/clipboard.h"
 
 class Application
 {
@@ -40,8 +45,13 @@ private:
     DWORD m_dwExStyle = WS_EX_TOPMOST | WS_EX_LAYERED;
 
     UIState m_uiState;
+    PopupState m_popupState;
     ContactManager m_contactManager;
+
+	Clipboard m_clipboard;
     InputEvents m_input;
+	KeyboardController m_keyboard;
+    Mouse m_mouse;
     
     RSA m_userRSA, m_peerRSA;
 

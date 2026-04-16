@@ -12,7 +12,7 @@ struct WindowConfig {
     float dpiScale;
 };
 
-WindowConfig SetupWindowEnv(float widthPercent, float heightPercent);
+WindowConfig SetupWindowEnv();
 HWND CreateAppWindow(const WindowConfig& config, WNDPROC wndProc);
 
 // =====================================================

@@ -28,7 +28,7 @@ ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 // Window Setup
 // =====================================================
 
-WindowConfig SetupWindowEnv(float widthPercent, float heightPercent)
+WindowConfig SetupWindowEnv()
 {
     ImGui_ImplWin32_EnableDpiAwareness();
 
@@ -41,8 +41,8 @@ WindowConfig SetupWindowEnv(float widthPercent, float heightPercent)
 
     WindowConfig config;
     config.dpiScale = dpiScale;
-    config.width = static_cast<int>(screenWidth * widthPercent);
-    config.height = static_cast<int>(screenHeight * heightPercent);
+    config.width = static_cast<int>(screenWidth);// * widthPercent);
+    config.height = static_cast<int>(screenHeight);// * heightPercent);
     config.x = (screenWidth - config.width) / 2;
     config.y = (screenHeight - config.height) / 2;
 

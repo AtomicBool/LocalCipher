@@ -42,4 +42,18 @@ namespace Conversion
 
         return oss.str();
     }
+
+    inline std::string GBKToUTF8(const std::string& gbk)
+    {
+        int len = MultiByteToWideChar(936, 0, gbk.c_str(), -1, NULL, 0);
+        std::wstring wstr(len, 0);
+        MultiByteToWideChar(936, 0, gbk.c_str(), -1, wstr.data(), len);
+
+        len = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+        std::string utf8(len, 0);
+        WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, utf8.data(), len, NULL, NULL);
+
+        utf8.pop_back(); // 去掉 '\0'
+        return utf8;
+    }
 }

@@ -20,7 +20,6 @@ struct UIEvent
         SelectContact
     } type = Type::None;
 
-    // 只在对应 type 下有效
     struct AddContactPayload
     {
         std::string name;
@@ -46,59 +45,64 @@ struct ContactViewModel
 
 //
 // =========================
-// UI STATE (pure UI state)
+// UI STATE
 // =========================
 //
 struct UIState
 {
-    // public
-        // flags
-        bool debug = false;
-        bool display = false;
-        bool firstFrame = false;
+    // flags
+    bool debug = false;
+    bool display = false;
+    bool firstFrame = false;
 
-        // events
-        std::vector<UIEvent> events;
+    // events
+    std::vector<UIEvent> events;
 
-        // input
-        char searchBuffer[256] = { 0 };
+    // input
+    char searchBuffer[256] = { 0 };
 
-    // private
-        // layout
-        float sizesPercentage[2] = { 0.45f, 0.6f };
+    // layout
+    float sizesPercentage[2] = { 0.5f, 0.3f };
 
-        // add contact
-        bool showAddContact = false;
-        char addName[128] = { 0 };
-        char addKey[512] = { 0 };
+    // add contact
+    bool showAddContact = false;
+    char addName[128] = { 0 };
+    char addKey[567] = { 0 };
 
-        // selection
-        std::string selectedContactName = "";
+    // selection
+    std::string selectedContactName = "";
 
     // -------------------------
     // event helpers
-    // -------------------------
-    // public
-        void ClearEvents()
-        {
-            events.clear();
-        }
-    // private
-        void PushAddContact(const std::string& name, const std::string& key)
-        {
-            UIEvent e;
-            e.type = UIEvent::Type::AddContact;
-            e.addContact = { name, key };
-            events.push_back(e);
-        }
+    // ------------------------- 
+    void ClearEvents()
+    {
+        events.clear();
+    }
+    
+    void PushAddContact(const std::string& name, const std::string& key)
+    {
+        UIEvent e;
+        e.type = UIEvent::Type::AddContact;
+        e.addContact = { name, key };
+        events.push_back(e);
+    }
 
-        void PushSelectContact(Contact m_contact)
-        {
-            UIEvent e;
-            e.type = UIEvent::Type::SelectContact;
-            e.selectContact = { m_contact };
-            events.push_back(e);
-        }
+    void PushSelectContact(Contact m_contact)
+    {
+        UIEvent e;
+        e.type = UIEvent::Type::SelectContact;
+        e.selectContact = { m_contact };
+        events.push_back(e);
+    }
+};
+
+struct PopupState {
+    bool visible = false;
+    std::string text;
+    ImVec2 pos = ImVec2(0, 0);
+    ImVec2 curMousePos = ImVec2(0, 0);
+    ImVec2 lastMousePos = ImVec2(0, 0);
 };
 
 //
@@ -110,4 +114,5 @@ struct UIState
 namespace UI
 {
     void Render(UIState& state, const ContactViewModel& vm);
+    void RenderPopUP(PopupState& state);
 }

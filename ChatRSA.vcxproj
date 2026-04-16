@@ -177,6 +177,7 @@
     <ClInclude Include="src\utils\os\clipboard.h" />
     <ClInclude Include="src\utils\os\conversion.h" />
     <ClInclude Include="src\utils\os\file.h" />
+    <ClInclude Include="src\utils\os\mouse.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

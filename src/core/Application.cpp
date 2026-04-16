@@ -19,7 +19,7 @@ Application::~Application()
 // =====================================================
 bool Application::initWindow()
 {
-    auto winConfig = SetupWindowEnv(0.65f, 0.3f);
+    auto winConfig = SetupWindowEnv();
 
     m_hwnd = CreateAppWindow(winConfig, WndProc);
     if (!m_hwnd) return false;
@@ -41,6 +41,18 @@ bool Application::initWindow()
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    ImFontConfig font_config;
+    font_config.MergeMode = true;
+        
+    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", 20.0f);
+
+    io.Fonts->AddFontFromFileTTF(
+        "C:\\Windows\\Fonts\\msyh.ttc",
+        20.0f,
+        &font_config,
+        io.Fonts->GetGlyphRangesChineseSimplifiedCommon()
+    );
 
     ImGui::StyleColorsDark();
     ImGui::GetStyle().ScaleAllSizes(winConfig.dpiScale);
@@ -88,11 +100,14 @@ bool Application::loadKeyPair(std::string privateKeyPath, std::string publicKeyP
 
         std::cout << "New keypair generated and saved\n";
     }
+
+    std::string publicKeyHexString = Conversion::BytesToString(m_userRSA.ExportPublicKey());
+    std::cout << "[Public Key] " << publicKeyHexString << std::endl;
 }
 
 bool Application::Initialize()
 {
-    return initWindow() || loadKeyPair();
+    return initWindow() && loadKeyPair();
 }
 
 // =====================================================
@@ -137,6 +152,10 @@ void Application::Run()
 // =====================================================
 void Application::Update()
 {
+    POINT p = m_mouse.getPos();
+    ImVec2 mousePos((float)p.x, (float)p.y);
+    m_popupState.curMousePos = mousePos;
+
     // =====================================================
     // input handling
     // =====================================================
@@ -146,18 +165,38 @@ void Application::Update()
         UpdateWindowState();
     }
 
-    if (m_input.IsPressed(VK_F1)) {
-		// f1 -> copy -> read clipboard -> decrypt -> print
-		m_userRSA.Decrypt(Conversion::StringToBytes("MSG"));
+    if (m_input.IsPressed(VK_F3)) {
+        std::string res = "";
+
+        try {
+            // f1 -> copy -> read clipboard -> decrypt -> render popup
+            m_keyboard.Combo({ VK_CONTROL, 'A' });
+            m_keyboard.Combo({ VK_CONTROL, 'C' });
+            std::string clipboardText = m_clipboard.GetText();
+            res = m_userRSA.Decrypt(Conversion::StringToBytes(clipboardText));
+        }
+        catch (const std::exception& e) {
+            std::cout << "[Decrypt failed] " << e.what() << std::endl;
+        }
+
+        m_popupState.text = Conversion::GBKToUTF8(res);
+        m_popupState.visible = true;
+        m_popupState.lastMousePos = mousePos;
     }
 
-    if (m_input.IsPressed(VK_F3)) {
-		// f3 -> select all -> copy -> read clipboard -> decrypt -> write clipboard -> paste -> print
+    if (m_input.IsPressed(VK_F4)) {
+		// f3 -> select all -> copy -> read clipboard -> encrypt -> write clipboard -> paste
         m_peerRSA.ImportPublicKey(Conversion::StringToBytes(m_selectedContact.public_key));
+        
+        m_keyboard.Combo({ VK_CONTROL, 'A' });
+        m_keyboard.Combo({ VK_CONTROL, 'C' });
+        std::string clipboardText = m_clipboard.GetText();
+		m_clipboard.SetText(Conversion::BytesToString(m_peerRSA.Encrypt(clipboardText)));
+        m_keyboard.Combo({ VK_CONTROL, 'V' });
 	}
 
     // =====================================================
-    // handle UI events (NEW MODEL)
+    // handle UI events
     // =====================================================
     ProcessUIEvents();
 }
@@ -209,7 +248,7 @@ void Application::ProcessUIEvents()
 }
 
 // =====================================================
-// WINDOW STATE
+// WINDOW STATE(ACTIVATE/ABLITY TO CLICK)
 // =====================================================
 void Application::UpdateWindowState()
 {
@@ -250,6 +289,7 @@ void Application::Render()
     vm.contacts = m_contactManager.search(m_uiState.searchBuffer);
 
     UI::Render(m_uiState, vm);
+    UI::RenderPopUP(m_popupState);
 
     ImGui::Render();
 

@@ -130,5 +130,8 @@
     <ClInclude Include="src\utils\os\clipboard.h">
       <Filter>Utils\os</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\os\mouse.h">
+      <Filter>Utils\keyboard</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

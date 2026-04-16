@@ -108,7 +108,7 @@ namespace UI {
         ImGui::Checkbox("Debug", &state.debug);
 
         // =====================================================
-        // Popup (still UI-only, but emits event on confirm)
+        // Add contact Popup
         // =====================================================
         if (state.showAddContact)
             ImGui::OpenPopup("Add Contact");
@@ -119,7 +119,7 @@ namespace UI {
             ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::InputText("Name", state.addName, 128);
-            ImGui::InputText("Public Key", state.addKey, 512);
+			ImGui::InputText("Public Key", state.addKey, sizeof(state.addKey)); // 566 char + 1 terminator
 
             if (ImGui::Button("Save", ImVec2(120, 0)))
             {
@@ -160,4 +160,42 @@ namespace UI {
         ImGui::End();
     }
 
+    void RenderPopUP(PopupState& state) {
+        if (!state.visible)
+            return;
+
+        float dx = state.curMousePos.x - state.lastMousePos.x;
+        float dy = state.curMousePos.y - state.lastMousePos.y;
+
+        if (dx * dx + dy * dy > 5.0f)
+        {
+            state.visible = false;
+            return;
+        }
+
+        state.pos = ImVec2(
+            state.curMousePos.x + 12,
+            state.curMousePos.y + 12
+        );
+
+        ImGui::SetNextWindowPos(state.pos);
+
+        ImGui::Begin(
+            "##popup",
+            nullptr,
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoFocusOnAppearing |
+            ImGuiWindowFlags_NoNav
+        );
+
+        ImGui::PushTextWrapPos(500.0f);
+        ImGui::TextUnformatted(state.text.c_str());
+        ImGui::PopTextWrapPos();
+
+        ImGui::End();
+    }
 }
