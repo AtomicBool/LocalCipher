@@ -79,9 +79,7 @@ bool Application::HandleEvents() {
 }
 
 void Application::Update() {
-    // 逻辑部分：F2 切换状态
-    // 我们使用了单例 Input 类，调用非常清晰
-    if (Input::Get().IsKeyPressed(VK_F2)) {
+    if (Keyboard::Get().IsKeyPressed(VK_F2)) {
         m_uiState.display = !m_uiState.display;
         
         UpdateWindowState();
