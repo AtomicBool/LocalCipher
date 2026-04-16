@@ -11,17 +11,6 @@
 // =========================
 //
 
-struct AddContactPayload
-{
-    std::string name;
-    std::string publicKey;
-};
-
-struct SelectContactPayload
-{
-    int index = -1;
-};
-
 struct UIEvent
 {
     enum class Type
@@ -32,8 +21,16 @@ struct UIEvent
     } type = Type::None;
 
     // 只在对应 type 下有效
-    AddContactPayload addContact{};
-    SelectContactPayload selectContact{};
+    struct AddContactPayload
+    {
+        std::string name;
+        std::string publicKey;
+    } addContact{};
+
+    struct SelectContactPayload
+    {
+        int index = -1;
+    } selectContact{};
 };
 
 //
