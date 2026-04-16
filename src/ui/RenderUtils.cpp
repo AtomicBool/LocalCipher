@@ -35,7 +35,7 @@ WindowConfig SetupWindowEnv(float widthPercent, float heightPercent)
 HWND CreateAppWindow(const WindowConfig& config, WNDPROC wndProc)
 {
     HINSTANCE hInst = GetModuleHandle(nullptr);
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, wndProc, 0L, 0L, hInst, nullptr, nullptr, nullptr, nullptr, L"LocalCipher", nullptr };
+    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, wndProc, 0L, 0L, hInst, nullptr, nullptr, nullptr, nullptr, L"ChatRSA", nullptr };
     ::RegisterClassExW(&wc);
 
     DWORD dwExStyle = WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE;
@@ -43,7 +43,7 @@ HWND CreateAppWindow(const WindowConfig& config, WNDPROC wndProc)
     return ::CreateWindowExW(
         dwExStyle,
         wc.lpszClassName,
-        L"LocalCipher",         // Window Title
+        L"ChatRSA",         // Window Title
         WS_POPUP,               // No border
         config.x,
         config.y,

@@ -140,5 +140,5 @@ void Application::Shutdown() {
         ::DestroyWindow(m_hwnd);
         m_hwnd = nullptr;
     }
-    ::UnregisterClassW(L"LocalCipher", GetModuleHandle(nullptr));
+    ::UnregisterClassW(L"ChatRSA", GetModuleHandle(nullptr));
 }

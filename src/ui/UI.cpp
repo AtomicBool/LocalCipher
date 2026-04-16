@@ -10,7 +10,7 @@ namespace UI {
         ImGui::SetNextWindowPos(ImVec2((viewportSize.x - nextWindowSize.x) / 2, (viewportSize.y - nextWindowSize.y) / 2));
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove;
-        ImGui::Begin("LocalCipherMain", nullptr, window_flags);
+        ImGui::Begin("ChatRSAMain", nullptr, window_flags);
 
         if (state.firstFrame) {
             ImGui::SetKeyboardFocusHere(0);
