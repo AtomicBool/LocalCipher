@@ -2,20 +2,23 @@
 #include <windows.h>
 #include <map>
 
-class Input {
+class Keyboard {
 public:
-    static Input& Get() {
-        static Input instance;
+    static Keyboard& Get() {
+        static Keyboard instance;
         return instance;
     }
 
     // with debounce
     bool IsKeyPressed(int vkCode, ULONGLONG interval = 150);
-    
-    // raw result, without debounce
-    bool IsKeyDown(int vkCode);
+
+    void simulateCombo(std::initializer_list<WORD> keys);
 
 private:
-    Input() = default;
+    Keyboard() = default;
     std::map<int, ULONGLONG> m_lastKeyTime;
+
+    // raw result, without debounce
+    bool IsKeyDown(int vkCode);
+    void pressKey(WORD key, bool down);
 };
