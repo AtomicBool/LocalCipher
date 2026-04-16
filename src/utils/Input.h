@@ -9,10 +9,10 @@ public:
         return instance;
     }
 
-    // 判断按键是否按下（带防抖）
+    // with debounce
     bool IsKeyPressed(int vkCode, ULONGLONG interval = 150);
     
-    // 判断按键当前是否按住（实时状态）
+    // raw result, without debounce
     bool IsKeyDown(int vkCode);
 
 private:

@@ -17,15 +17,11 @@ public:
     void Shutdown();
 
 private:
-    // 所有的纯逻辑更新（按键、状态变化、计算）
     void Update();
     
-    // 所有的渲染相关的操作（ImGui新帧、D3D绘制、Present）
     void Render();
-    
-    // 辅助函数：更新窗口显示状态（穿透/显示）
-    void UpdateWindowState();
 
+    void UpdateWindowState();
     bool HandleEvents();
 
 private:
