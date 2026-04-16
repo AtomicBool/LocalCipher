@@ -1,25 +1,29 @@
 #pragma once
 
 #include <cstring>
-
-#include "utils/Contact.h"
+#include <vector>
 #include "imgui.h"
+#include "utils/Contact.h"
 
 struct UIState {
-    float sizesPercentage[2] = { 0.9f, 0.7f };
+    float sizesPercentage[2] = { 0.45f, 0.6f };
     char searchBuffer[256] = "";
     bool debug = false;
     bool display = false;
     bool firstFrame = false;
-    
-    // Add contact temporary state
+
     bool showAddContact = false;
     char addName[128] = "";
     char addKey[512] = "";
-    
+
     Contact selectedContact = { "", "" };
+    bool pendingAdd = false;
+};
+
+struct ContactViewModel {
+    std::vector<Contact> contacts;
 };
 
 namespace UI {
-    void Render(UIState& state, ContactManager& contactManager);
+    void Render(UIState& state, const ContactViewModel& vm);
 }

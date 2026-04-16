@@ -67,9 +67,6 @@
     <ClInclude Include="src\core\Application.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\main.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\ui\RenderUtils.h">
       <Filter>UI</Filter>
     </ClInclude>

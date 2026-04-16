@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <tchar.h>
-#include <vector>
+#include <windows.h>
 
 #include "ui/RenderUtils.h"
 #include "ui/UI.h"
@@ -19,18 +19,18 @@ public:
 
 private:
     void Update();
-    
     void Render();
-
     void UpdateWindowState();
     bool HandleEvents();
 
 private:
     HWND m_hwnd = nullptr;
+
     UIState m_uiState;
     ContactManager m_contactManager;
-    Keyboard& m_keyboard;
-    
+
+    Keyboard& m_keyboard = Keyboard::Get();
+
     DWORD m_dwExStyle = WS_EX_TOPMOST | WS_EX_LAYERED;
     bool m_done = false;
 };
