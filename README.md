@@ -2,7 +2,7 @@
 
 <p align="center">
     <picture>
-        <img src="./icon.png" alt="OpenClaw" width="500">
+        <img src="./icon.png" alt="OpenClaw" width="120">
     </picture>
 </p>
 
