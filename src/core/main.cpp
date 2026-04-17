@@ -2,6 +2,8 @@
 
 int main(int, char**)
 {
+    SetConsoleOutputCP(CP_UTF8);
+
     Application app;
 
     if (!app.Initialize()) {

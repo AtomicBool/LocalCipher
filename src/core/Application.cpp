@@ -181,7 +181,7 @@ void Application::Update()
             std::cout << "[Decrypt failed] " << e.what() << std::endl;
         }
 
-		std::cout << "[Decrypted] " << res << std::endl;
+		printf("[Decrypted] %s\n", res.c_str());
 
         m_popupState.text = res;
         m_popupState.visible = true;
